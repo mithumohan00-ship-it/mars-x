@@ -273,6 +273,22 @@ export const ContextPanel = () => {
               <h4>Planetary Data Sources</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <a
+                  href="https://pds.nasa.gov/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card"
+                  style={{ textDecoration: 'none', padding: '10px 12px', display: 'block' }}
+                >
+                  <div className="t" style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--green)' }}>
+                    <span>NASA PLANETARY DATA SYSTEM (PDS)</span>
+                    <span>↗</span>
+                  </div>
+                  <div className="s" style={{ marginTop: '4px', fontSize: '11px', color: '#b9cbdc' }}>
+                    MOLA Altimetry · HiRISE 1m DTMs · CRISM Hyperspectral Cubes · REMS/RAD Atmospheric Data
+                  </div>
+                </a>
+
+                <a
                   href="https://astrogeology-usgs.hub.arcgis.com/pages/interactive-maps-mars"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -301,6 +317,22 @@ export const ContextPanel = () => {
                   </div>
                   <div className="s" style={{ marginTop: '4px', fontSize: '11px', color: '#b9cbdc' }}>
                     Perseverance & Curiosity Raw Imagery Archive · Mastcam-Z · SuperCam RMI science feeds
+                  </div>
+                </a>
+
+                <a
+                  href="https://github.com/mithumohan00-ship-it/mars-x/blob/main/NASA_RESOURCES.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card"
+                  style={{ textDecoration: 'none', padding: '10px 12px', display: 'block', borderColor: 'rgba(0, 229, 255, 0.4)' }}
+                >
+                  <div className="t" style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--cyan)' }}>
+                    <span>🛰️ NASA RESOURCES CATALOG (NASA_RESOURCES.MD)</span>
+                    <span>↗</span>
+                  </div>
+                  <div className="s" style={{ marginTop: '4px', fontSize: '11px', color: '#b9cbdc' }}>
+                    Full Space Apps Challenge data audit · Mission instruments · PDS node endpoints & product IDs
                   </div>
                 </a>
               </div>

@@ -1,0 +1,162 @@
+{
+  "project": "MARS-X",
+  "challenge": "NASA Space Apps Challenge",
+  "description": "Comprehensive catalog of NASA Planetary Data System (PDS), USGS Astrogeology, and robotic mission resources integrated into the MARS-X Human Marswalk Mission Planner.",
+  "last_updated": "2026-11-15",
+  "pds_nodes": [
+    {
+      "name": "PDS Geosciences Node",
+      "institution": "Washington University in St. Louis",
+      "url": "https://pds-geosciences.wustl.edu/",
+      "disciplines": ["Topography", "Spectral Mineralogy", "Geophysics", "Orbiter Altimetry"]
+    },
+    {
+      "name": "PDS Cartography and Imaging Sciences Node",
+      "institution": "USGS Astrogeology Science Center / NASA JPL",
+      "url": "https://pds-imaging.jpl.nasa.gov/",
+      "disciplines": ["High-Resolution Stereo DTMs", "Controlled Image Mosaics", "Rover Imaging Archives"]
+    },
+    {
+      "name": "PDS Atmospheres Node",
+      "institution": "New Mexico State University",
+      "url": "https://pds-atmospheres.nmsu.edu/",
+      "disciplines": ["Atmospheric Pressure", "Dust Optical Depth (tau)", "Wind Vectors", "Ambient Temperature"]
+    },
+    {
+      "name": "PDS Planetary Plasma Interactions (PPI) Node",
+      "institution": "University of California, Los Angeles",
+      "url": "https://pds-ppi.igpp.ucla.edu/",
+      "disciplines": ["Galactic Cosmic Ray (GCR) Flux", "Solar Energetic Particle (SEP) Surface Dose"]
+    }
+  ],
+  "missions_and_instruments": [
+    {
+      "mission": "Mars Global Surveyor (MGS)",
+      "instrument": "Mars Orbiter Laser Altimeter (MOLA)",
+      "dataset_name": "MOLA Mission Experiment Gridded Data Record (MEGDR)",
+      "product_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0",
+      "resolution": "128 pixels/degree (~463 m/pixel at equator)",
+      "application_in_marsx": "Global baseline Martian datum, planet-scale 3D globe elevation rendering, and regional elevation offsets for all 6 exploration sites.",
+      "access_url": "https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v10/mgsl_300x/"
+    },
+    {
+      "mission": "Mars Reconnaissance Orbiter (MRO)",
+      "instrument": "High Resolution Imaging Science Experiment (HiRISE)",
+      "dataset_name": "HiRISE Stereo Digital Terrain Models (DTMs)",
+      "product_id": "MRO-M-HIRISE-5-DTM-V1.0",
+      "resolution": "1.0 m/pixel horizontal, ~0.2 m vertical precision",
+      "application_in_marsx": "Micro-topography, meter-scale boulder field distribution, cliff scarp slope gradients, and landing site obstacle verification.",
+      "access_url": "https://www.uahirise.org/dtm/"
+    },
+    {
+      "mission": "Mars Reconnaissance Orbiter (MRO)",
+      "instrument": "Compact Reconnaissance Imaging Spectrometer for Mars (CRISM)",
+      "dataset_name": "CRISM Targeted Empirical Data Record (EDR/CDR/MRDR)",
+      "product_id": "MRO-M-CRISM-3-RDR-TARGETED-V1.0",
+      "spectral_bands": "362 to 3920 nm across 544 channels",
+      "application_in_marsx": "Multi-spectral mineral overlays: phyllosilicates (clays at 2.2 µm band depth), crystalline hematite (860 nm band), and polyhydrated sulfates (1.9/2.4 µm).",
+      "access_url": "https://pds-geosciences.wustl.edu/missions/mro/crism.htm"
+    },
+    {
+      "mission": "Mars Reconnaissance Orbiter (MRO)",
+      "instrument": "Context Camera (CTX)",
+      "dataset_name": "CTX Controlled Image Mosaics",
+      "product_id": "MRO-M-CTX-2-EDR-L0-V1.0",
+      "resolution": "5.0 to 6.0 m/pixel",
+      "application_in_marsx": "Panchromatic albedo basemaps, backdrop horizon texturing, and regional geomorphology context.",
+      "access_url": "https://pds-imaging.jpl.nasa.gov/volumes/mro.html"
+    },
+    {
+      "mission": "2001 Mars Odyssey",
+      "instrument": "Thermal Emission Imaging System (THEMIS)",
+      "dataset_name": "THEMIS Daytime and Nighttime Infrared Global Mosaics",
+      "product_id": "ODY-M-THEMIS-5-IR-GLOBAL-V1.0",
+      "resolution": "100 m/pixel",
+      "application_in_marsx": "Thermal inertia mapping to distinguish consolidated bedrock and competent outcrop from hazardous unconsolidated dust deposits.",
+      "access_url": "https://astrogeology.usgs.gov/search/map/Mars/Odyssey/THEMIS-IR-Day-Global-Mosaic"
+    },
+    {
+      "mission": "Mars Science Laboratory (MSL) Curiosity",
+      "instrument": "Rover Environmental Monitoring Station (REMS)",
+      "dataset_name": "REMS Calibrated Data Records (RDR)",
+      "product_id": "MSL-M-REMS-4-RDR-V1.0",
+      "application_in_marsx": "Real-time diurnal atmospheric simulation (atmospheric pressure 7.2 hPa, ground temperatures -22°C to -48°C, and local wind speed vectors).",
+      "access_url": "https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/MARS/curiosity/rems.html"
+    },
+    {
+      "mission": "Mars Science Laboratory (MSL) Curiosity",
+      "instrument": "Radiation Assessment Detector (RAD)",
+      "dataset_name": "RAD Calibrated Particle and Dose Data (EDR/RDR)",
+      "product_id": "MSL-M-RAD-3-RDR-V1.0",
+      "application_in_marsx": "Surface radiation environment model (0.64 - 0.70 mSv/day equivalent human dose) and topological radiation hazard mapping.",
+      "access_url": "https://pds-ppi.igpp.ucla.edu/mission/MSL/RAD"
+    },
+    {
+      "mission": "Mars 2020 Perseverance Rover",
+      "instrument": "Mastcam-Z & SuperCam Remote Micro-Imager (RMI)",
+      "dataset_name": "NASA Mars 2020 Raw Image Repository & Telemetry Feed",
+      "product_id": "MARS2020-RAW-FEED",
+      "application_in_marsx": "Direct in-app telemetry linkage to raw rover imaging for Jezero Crater science target verification and rover position tracking.",
+      "access_url": "https://mars.nasa.gov/mars2020/multimedia/raw-images/"
+    },
+    {
+      "mission": "USGS Astrogeology Science Center",
+      "instrument": "Multi-Mission Cartographic Integration",
+      "dataset_name": "Unified Geologic Map of Mars (USGS Scientific Investigations Map 3292)",
+      "product_id": "USGS-SIM-3292",
+      "scale": "1:20,000,000 global scale",
+      "application_in_marsx": "Stratigraphic rock units, geologic fault lines, crater chronologies, and mineral resource classifications across all exploration zones.",
+      "access_url": "https://astrogeology-usgs.hub.arcgis.com/pages/interactive-maps-mars"
+    }
+  ],
+  "regions_mapping": {
+    "gale-msharp-nw": {
+      "name": "Gale Crater · Mount Sharp NW Approach",
+      "center": { "lat": -5.4, "lon": 137.8 },
+      "primary_hirise_dtm": "DTEEC_009187_1755_009899_1755",
+      "primary_crism_cube": "FRT0000B242",
+      "mola_base_elevation_m": -4450,
+      "geologic_unit": "Bradbury Group (lacustrine mudstone & clay-bearing unit)"
+    },
+    "jezero": {
+      "name": "Jezero Crater · Western River Delta",
+      "center": { "lat": 18.4, "lon": 77.5 },
+      "primary_hirise_dtm": "DTEEC_045994_1985_045361_1985",
+      "primary_crism_cube": "HRL000040FF",
+      "mola_base_elevation_m": -2500,
+      "geologic_unit": "Deltaic bottomset silts and Séítah olivine-carbonate cumulate"
+    },
+    "olympus": {
+      "name": "Olympus Mons · Basal Scarp",
+      "center": { "lat": 18.6, "lon": -133.8 },
+      "primary_hirise_dtm": "DTEEC_002824_1985_003536_1985",
+      "primary_crism_cube": "HRS0000A382",
+      "mola_base_elevation_m": 1200,
+      "geologic_unit": "Shield volcano basalt, columnar jointing, collapsed lava tubes"
+    },
+    "valles": {
+      "name": "Valles Marineris · Candor Chasma",
+      "center": { "lat": -14.0, "lon": -59.0 },
+      "primary_hirise_dtm": "DTEEC_005527_1660_006094_1660",
+      "primary_crism_cube": "FRT0000958C",
+      "mola_base_elevation_m": -3800,
+      "geologic_unit": "Layered sulfate plateau and landslide megabreccia aprons"
+    },
+    "hellas": {
+      "name": "Hellas Planitia · South-Central Basin Plain",
+      "center": { "lat": -42.4, "lon": 70.5 },
+      "primary_hirise_dtm": "DTEEC_037233_1375_037444_1375",
+      "primary_crism_cube": "FRT00003BD4",
+      "mola_base_elevation_m": -7150,
+      "geologic_unit": "Permafrost polygonal ground, glacial outwash silt, cryo-frost mantle"
+    },
+    "elysium": {
+      "name": "Elysium Planitia · Cerberus Fossae",
+      "center": { "lat": 4.5, "lon": 135.6 },
+      "primary_hirise_dtm": "DTEEC_007850_1850_008562_1850",
+      "primary_crism_cube": "FRT0000B33A",
+      "mola_base_elevation_m": -2800,
+      "geologic_unit": "Young flood basalts, tectonic graben fissure, pyroclastic cones"
+    }
+  }
+}

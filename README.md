@@ -1,6 +1,7 @@
 # 🔴 MARS-X — Autonomous Human Marswalk Mission Planner & Traversal Simulator
 
 [![NASA Space Apps Challenge](https://img.shields.io/badge/NASA%20Space%20Apps-Challenge%20Project-FF4B4B?style=for-the-badge&logo=nasa&logoColor=white)](https://www.spaceappschallenge.org/)
+[![NASA Resources](https://img.shields.io/badge/NASA%20Data-Resources%20Catalog-0B3D91?style=for-the-badge&logo=nasa&logoColor=white)](NASA_RESOURCES.md)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r173-000000?style=for-the-badge&logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -174,13 +175,19 @@ npm run preview
 
 ## 📡 Data Sources & Scientific References
 
+> 📖 **Full Catalog & Integration Dossier:** For an exhaustive list of all NASA instruments, PDS nodes, product IDs, and region mappings, see [**NASA_RESOURCES.md**](NASA_RESOURCES.md) and machine-readable metadata in [`src/data/nasaResources.json`](src/data/nasaResources.json).
+
 1. **NASA Planetary Data System (PDS):**
-   - Geosciences Node: Mars Global Surveyor (MGS) Mars Orbiter Laser Altimeter (MOLA) MEGDR Digital Elevation Models.
-   - Imaging Node: Mars Reconnaissance Orbiter (MRO) High Resolution Imaging Science Experiment (HiRISE) Stereo Digital Terrain Models (DTMs).
+   - Geosciences Node: Mars Global Surveyor (MGS) Mars Orbiter Laser Altimeter (MOLA) MEGDR Digital Elevation Models (`MGS-M-MOLA-5-MEGDR-L3-V1.0`).
+   - Imaging Node: Mars Reconnaissance Orbiter (MRO) High Resolution Imaging Science Experiment (HiRISE) Stereo Digital Terrain Models (`MRO-M-HIRISE-5-DTM-V1.0`).
+   - Geosciences Node: Compact Reconnaissance Imaging Spectrometer for Mars (CRISM) targeted empirical data records (`MRO-M-CRISM-3-RDR-TARGETED-V1.0`).
+   - Atmospheres Node: Mars Science Laboratory (MSL) Rover Environmental Monitoring Station (`MSL-M-REMS-4-RDR-V1.0`).
+   - PPI Node: MSL Radiation Assessment Detector (`MSL-M-RAD-3-RDR-V1.0`).
 2. **USGS Astrogeology Science Center:**
    - Unified Geologic Map of Mars (USGS Scientific Investigations Map 3292).
+   - THEMIS Daytime/Nighttime Infrared Global Mosaics (100 m/pixel).
 3. **NASA Mars 2020 & MSL Science Teams:**
-   - Rover Environmental Monitoring Station (REMS) and Radiation Assessment Detector (RAD) reduced environmental datasets.
+   - Mars 2020 Perseverance Mastcam-Z & SuperCam RMI Raw Image Archives (`https://mars.nasa.gov/mars2020/multimedia/raw-images/`).
 
 ---
 
