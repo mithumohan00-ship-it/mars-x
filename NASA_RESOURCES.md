@@ -116,6 +116,15 @@ MARS-X interfaces with data structures distributed across four primary NASA PDS 
   - Stratigraphic classification: Bradbury Group, Murray Formation, sulfate units, and basaltic dune sands.
 - **Resource URL:** [USGS Astrogeology Mars Interactive Maps](https://astrogeology-usgs.hub.arcgis.com/pages/interactive-maps-mars)
 
+### 9. NASA 3D Resources Catalog (NASA Ames / Glenn / JPL)
+- **Resource Portal:** [NASA 3D Resources](https://nasa3d.arc.nasa.gov/)
+- **Integrated Models:**
+  1. **Tracking and Data Relay Satellite (TDRS):** Official NASA 3D model used for orbital communications relays `RELAY-1` and `RELAY-2`.
+  2. **Habitat Demonstration Unit (HDU Part 1):** Official NASA 3D architectural model used for surface base camp `HAB-1`.
+  3. **Advanced Crew Escape Suit (ACES):** Official NASA 3D extravehicular spacesuit model used for astronaut avatar `EV-1`.
+- **Application in MARS-X:**
+  - Real-time WebGL rendering of true-to-life NASA exploration assets, replacing placeholder geometric shapes with verified aerospace hardware.
+
 ---
 
 ## 🗺️ Region-Specific PDS & HiRISE DTM Catalog

@@ -4,6 +4,8 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 
 import {
@@ -60,6 +62,12 @@ export class MarsXEngine {
     this.globeScene = new THREE.Scene();
     this.terrainScene = new THREE.Scene();
     this.activeScene = this.globeScene;
+
+    // Shared GLTF & Draco Model Loader
+    this.dracoLoader = new DRACOLoader();
+    this.dracoLoader.setDecoderPath('/draco/gltf/');
+    this.gltfLoader = new GLTFLoader();
+    this.gltfLoader.setDRACOLoader(this.dracoLoader);
 
     this.composer = new EffectComposer(this.renderer);
     this.renderPass = new RenderPass(this.globeScene, this.camera);
@@ -614,6 +622,11 @@ export class MarsXEngine {
       )
     );
 
+    // Soft fill light for orbital assets
+    const orbitFill = new THREE.DirectionalLight(0x7090b0, 0.7);
+    orbitFill.position.set(-5, -2, -3);
+    this.globeScene.add(orbitFill);
+
     // Orbits
     this.G.orbits = [];
     [
@@ -641,28 +654,99 @@ export class MarsXEngine {
       );
       og.children[0].computeLineDistances();
 
-      const sat = new THREE.Sprite(
-        new THREE.SpriteMaterial({
-          map: this.GLOW,
-          color: 0x9fefff,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
-        })
-      );
-      sat.scale.setScalar(0.07);
+      // Satellite parent group that traverses the orbit
+      const sat = new THREE.Group();
       og.add(sat);
 
-      const o = { g: og, sat, r, spd, a: Math.random() * 6 };
+      // Faint beacon sprite so the satellite is visible at extreme distances
+      const beacon = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: this.GLOW,
+          color: 0x5fe1ff,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          opacity: 0.45
+        })
+      );
+      beacon.scale.setScalar(0.04);
+      sat.add(beacon);
+
+      // Wrapper group for the 3D model
+      const modelWrap = new THREE.Group();
+      sat.add(modelWrap);
+
+      const o = { g: og, sat, modelWrap, satModel: null, beacon, r, spd, a: Math.random() * 6 };
       this.G.orbits.push(o);
 
       this.addLabel(
-        `<div class="bx"><b>${name}</b> <small>ORBITAL RELAY · SIM</small></div>`,
+        `<div class="bx"><b>${name}</b> <small>NASA TDRS · ORBITAL RELAY</small></div>`,
         'site minor',
         (v) => sat.getWorldPosition(v),
         this.globeScene,
         { dy: 6 }
       );
     });
+
+    // Load NASA TDRS 3D Satellite Model
+    this.gltfLoader.load(
+      '/models/tdrs.glb',
+      (gltf) => {
+        const raw = gltf.scene;
+        const box = new THREE.Box3().setFromObject(raw);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+
+        raw.traverse((child) => {
+          if (child.isMesh && child.material) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            const m = child.material;
+            m.side = THREE.DoubleSide;
+            if (m.name === 'AntennaGold') {
+              m.metalness = 0.88;
+              m.roughness = 0.22;
+              m.color = new THREE.Color(0xf5c332);
+              m.emissive = new THREE.Color(0x382806);
+            } else if (m.name === 'WingBlue' || m.name === 'InnerWingBlue') {
+              m.metalness = 0.65;
+              m.roughness = 0.28;
+              m.color = new THREE.Color(0x2743a6);
+              m.emissive = new THREE.Color(0x0c1642);
+            } else if (m.name === 'InnerDish' || m.name === 'Default_Material') {
+              m.metalness = 0.25;
+              m.roughness = 0.5;
+              m.color = new THREE.Color(0xe0e6ed);
+            } else {
+              m.metalness = Math.max(m.metalness || 0, 0.3);
+              m.roughness = Math.min(m.roughness || 1, 0.65);
+            }
+            m.needsUpdate = true;
+          }
+        });
+
+        this.G.orbits.forEach((o, idx) => {
+          const clone = raw.clone(true);
+          // Center model at origin
+          clone.position.set(-center.x, -center.y, -center.z);
+
+          const modelContainer = new THREE.Group();
+          modelContainer.add(clone);
+          // Scale to visible proportion around Mars (span ~0.14 scene units)
+          modelContainer.scale.setScalar(0.14);
+
+          if (idx === 1) {
+            modelContainer.rotation.y = Math.PI * 0.35;
+          }
+
+          o.modelWrap.add(modelContainer);
+          o.satModel = modelContainer;
+        });
+      },
+      undefined,
+      (err) => {
+        console.warn('Failed to load TDRS 3D model, fallback beacon active:', err);
+      }
+    );
 
     // Sites
     this.G.sites = [];
@@ -1084,6 +1168,121 @@ export class MarsXEngine {
     this.terrainScene.add(this.routeGroup);
   }
 
+  loadHabitatModel(cb) {
+    if (this._habitatTemplate) {
+      cb(this._habitatTemplate.clone(true));
+      return;
+    }
+    if (!this._habitatLoadingCallbacks) {
+      this._habitatLoadingCallbacks = [cb];
+      this.gltfLoader.load(
+        '/models/habitat.glb',
+        (gltf) => {
+          const raw = gltf.scene;
+          const box = new THREE.Box3().setFromObject(raw);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+
+          raw.traverse((child) => {
+            if (child.isMesh && child.material) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.side = THREE.DoubleSide;
+              child.material.needsUpdate = true;
+            }
+          });
+
+          // Center horizontally and put base flat on ground
+          raw.position.set(-center.x, -box.min.y, -center.z);
+
+          const wrap = new THREE.Group();
+          wrap.add(raw);
+
+          // Proportional scale to fit within the 2.7m radius pad
+          const maxHoriz = Math.max(size.x, size.z);
+          const scale = maxHoriz > 0 ? 4.6 / maxHoriz : 1.0;
+          wrap.scale.setScalar(scale);
+
+          this._habitatTemplate = wrap;
+          const cbs = this._habitatLoadingCallbacks || [];
+          this._habitatLoadingCallbacks = null;
+          cbs.forEach((fn) => fn(wrap.clone(true)));
+        },
+        undefined,
+        (err) => {
+          console.warn('Failed to load Habitat 3D model:', err);
+        }
+      );
+    } else {
+      this._habitatLoadingCallbacks.push(cb);
+    }
+  }
+
+  loadAstronautModel(cb) {
+    if (this._astronautTemplate) {
+      cb(this._astronautTemplate.clone(true));
+      return;
+    }
+    if (!this._astronautLoadingCallbacks) {
+      this._astronautLoadingCallbacks = [cb];
+      this.gltfLoader.load(
+        '/models/astronaut.glb',
+        (gltf) => {
+          const raw = gltf.scene;
+          const box = new THREE.Box3().setFromObject(raw);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+
+          raw.traverse((child) => {
+            if (child.isMesh && child.material) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              const m = child.material;
+              m.side = THREE.DoubleSide;
+              if (m.name && m.name.toLowerCase().includes('aceshelme')) {
+                m.metalness = 0.92;
+                m.roughness = 0.15;
+                m.color = new THREE.Color(0xf5ba31);
+                m.emissive = new THREE.Color(0x332200);
+              } else if (m.name && m.name.toLowerCase().includes('blinn')) {
+                m.metalness = 0.6;
+                m.roughness = 0.3;
+              } else {
+                m.roughness = Math.min(m.roughness || 1, 0.7);
+              }
+              m.needsUpdate = true;
+            }
+          });
+
+          // Center horizontally and put boots on ground
+          raw.position.set(-center.x, -box.min.y, -center.z);
+
+          const wrap = new THREE.Group();
+          wrap.add(raw);
+
+          // Target height: 2.0 scene units tall
+          const scale = size.y > 0 ? 2.0 / size.y : 1.0;
+          wrap.scale.setScalar(scale);
+
+          this._astronautTemplate = wrap;
+          const cbs = this._astronautLoadingCallbacks || [];
+          this._astronautLoadingCallbacks = null;
+          cbs.forEach((fn) => fn(wrap.clone(true)));
+        },
+        undefined,
+        (err) => {
+          console.warn('Failed to load Astronaut 3D model:', err);
+        }
+      );
+    } else {
+      this._astronautLoadingCallbacks.push(cb);
+    }
+  }
+
   buildHabitat() {
     const g = new THREE.Group();
     const hx = this.HAB.x - 3.2;
@@ -1091,45 +1290,9 @@ export class MarsXEngine {
     const y = this.store.hU(hx, hz);
     g.position.set(hx, y, hz);
 
-    const mw = new THREE.MeshStandardMaterial({ color: 0xe9e4dc, roughness: 0.5, metalness: 0.2 });
-    const dome = new THREE.Mesh(
-      new THREE.SphereGeometry(1.1, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-      mw
-    );
-    dome.castShadow = true;
-    g.add(dome);
-
-    [
-      [1.9, 0, 0.55],
-      [-1.6, 0.8, 0.45],
-      [0, -1.8, 0.5]
-    ].forEach(([x, z, r]) => {
-      const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1.6, 20), mw);
-      c.rotation.z = Math.PI / 2;
-      c.position.set(x, r * 0.9, z);
-      c.castShadow = true;
-      g.add(c);
-    });
-
-    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 3.2, 6), mw);
-    mast.position.set(0.6, 1.6, 0.6);
-    g.add(mast);
-
-    const beacon = new THREE.Sprite(
-      new THREE.SpriteMaterial({
-        map: this.GLOW,
-        color: 0x7ff0ff,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      })
-    );
-    beacon.position.set(0.6, 3.3, 0.6);
-    beacon.scale.setScalar(1.4);
-    g.add(beacon);
-    this.T.beacon = beacon;
-
+    // Egress / landing pad perimeter ring
     const pad = new THREE.Mesh(
-      new THREE.RingGeometry(2.6, 2.75, 64),
+      new THREE.RingGeometry(2.7, 2.85, 64),
       new THREE.MeshBasicMaterial({
         color: 0x5fe1ff,
         transparent: true,
@@ -1140,16 +1303,43 @@ export class MarsXEngine {
       })
     );
     pad.rotation.x = -Math.PI / 2;
-    pad.position.y = 0.15;
+    pad.position.y = 0.12;
     g.add(pad);
+
+    // Habitat comms mast & beacon
+    const mw = new THREE.MeshStandardMaterial({ color: 0xe9e4dc, roughness: 0.5, metalness: 0.2 });
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 3.2, 6), mw);
+    mast.position.set(2.0, 1.6, 1.8);
+    g.add(mast);
+
+    const beacon = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: this.GLOW,
+        color: 0x7ff0ff,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    beacon.position.set(2.0, 3.3, 1.8);
+    beacon.scale.setScalar(1.4);
+    g.add(beacon);
+    this.T.beacon = beacon;
+
+    // 3D NASA Habitat Demonstration Unit
+    const habContainer = new THREE.Group();
+    g.add(habContainer);
+
+    this.loadHabitatModel((model) => {
+      habContainer.add(model);
+    });
 
     this.terrainScene.add(g);
     this.T.hab = g;
 
     this.addLabel(
-      `<div class="bx"><b>HAB-1 · HABITAT</b><br><small>EVA EGRESS · COMMS MAST</small></div>`,
+      `<div class="bx"><b>HAB-1 · HABITAT</b><br><small>NASA HDU · EVA EGRESS</small></div>`,
       '',
-      (v) => v.set(hx, y + 4, hz),
+      (v) => v.set(hx, y + 4.2, hz),
       this.terrainScene
     );
   }
@@ -1354,46 +1544,26 @@ export class MarsXEngine {
 
   buildAstronaut() {
     const g = new THREE.Group();
-    const body = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.32, 0.7, 4, 12),
-      new THREE.MeshStandardMaterial({
-        color: 0xf4f4f0,
-        roughness: 0.4,
-        emissive: 0x223344,
-        emissiveIntensity: 0.3
-      })
-    );
-    body.position.y = 0.7;
-    body.castShadow = true;
 
-    const visor = new THREE.Mesh(
-      new THREE.SphereGeometry(0.22, 16, 10),
-      new THREE.MeshStandardMaterial({
-        color: 0xffb347,
-        metalness: 0.9,
-        roughness: 0.15,
-        emissive: 0x553300
-      })
-    );
-    visor.position.set(0, 1.25, 0.14);
-
+    // Telemetry aura and ground ring
     const glow = new THREE.Sprite(
       new THREE.SpriteMaterial({
         map: this.GLOW,
         color: 0x7ff0ff,
         blending: THREE.AdditiveBlending,
-        depthWrite: false
+        depthWrite: false,
+        opacity: 0.35
       })
     );
-    glow.scale.setScalar(3.2);
-    glow.position.y = 0.9;
+    glow.scale.setScalar(2.6);
+    glow.position.y = 1.0;
 
     const ring = new THREE.Mesh(
-      new THREE.RingGeometry(1, 1.12, 48),
+      new THREE.RingGeometry(0.85, 0.98, 48),
       new THREE.MeshBasicMaterial({
         color: 0x5fe1ff,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.75,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
         depthWrite: false
@@ -1402,17 +1572,24 @@ export class MarsXEngine {
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = 0.08;
 
-    g.add(body, visor, glow, ring);
-    g.scale.setScalar(1.6);
+    // 3D NASA ACES Astronaut Model
+    const astroContainer = new THREE.Group();
+    g.add(glow, ring, astroContainer);
+
+    this.loadAstronautModel((model) => {
+      astroContainer.add(model);
+    });
+
+    g.scale.setScalar(1.2);
     g.visible = false;
     this.terrainScene.add(g);
     this.T.astro = g;
     this.T.astroRing = ring;
 
     this.T.astroLab = this.addLabel(
-      `<div class="bx"><b>EV-1</b> <small id="evLab">ASTRONAUT</small></div>`,
+      `<div class="bx"><b>EV-1</b> <small id="evLab">NASA ACES · ASTRONAUT</small></div>`,
       '',
-      (v) => v.copy(g.position).add(new THREE.Vector3(0, 3.6, 0)),
+      (v) => v.copy(g.position).add(new THREE.Vector3(0, 3.2, 0)),
       this.terrainScene
     );
     this.T.astroLab.visible = false;
@@ -2145,6 +2322,10 @@ export class MarsXEngine {
       (this.G.orbits || []).forEach((o) => {
         o.a += dt * o.spd;
         o.sat.position.set(Math.cos(o.a) * o.r, 0, Math.sin(o.a) * o.r);
+        if (o.satModel) {
+          o.satModel.rotation.y += dt * 0.35;
+          o.satModel.rotation.x = Math.sin(t * 0.4 + o.r) * 0.12;
+        }
       });
       (this.G.sites || []).forEach((S, i) => {
         const k = (t * 0.6 + i * 0.3) % 1;

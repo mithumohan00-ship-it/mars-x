@@ -107,6 +107,14 @@
       "scale": "1:20,000,000 global scale",
       "application_in_marsx": "Stratigraphic rock units, geologic fault lines, crater chronologies, and mineral resource classifications across all exploration zones.",
       "access_url": "https://astrogeology-usgs.hub.arcgis.com/pages/interactive-maps-mars"
+    },
+    {
+      "mission": "NASA 3D Resources Program",
+      "instrument": "NASA Ames / Glenn / JPL 3D Model Repositories",
+      "dataset_name": "NASA 3D Spacecraft, Habitat & Astronaut Models (GLTF/GLB)",
+      "product_id": "NASA-3D-TDRS-HDU-ACES",
+      "application_in_marsx": "Official NASA 3D models for orbital communications relays (TDRS for RELAY-1/2), surface base camp (HDU Part 1 for HAB-1), and EVA astronaut traversal avatar (ACES for EV-1).",
+      "access_url": "https://nasa3d.arc.nasa.gov/"
     }
   ],
   "regions_mapping": {
